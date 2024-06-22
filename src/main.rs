@@ -34,7 +34,6 @@ fn main() {
         let _ = io::stdout().flush();
         choice.clear();
         let _ = io::stdin().read_line(&mut choice);
-        println!("");
 
         match choice.trim().parse().unwrap() {
             0 => {
