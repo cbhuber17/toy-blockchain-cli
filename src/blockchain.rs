@@ -156,4 +156,14 @@ impl Chain {
              };
         }
     }
+
+    pub fn hash<T: serde::Serialize>(item: &T) -> String {
+        let input = serde_json::to_string(&item).unwrap();
+        let mut hasher = Sha256::default();
+        hasher.input(input.as_bytes());
+        let res = hasher.result();
+        let vec_res = res.to_vec();
+
+        Chain::hex_to_string(vec_res.as_slice())
+    }
 }
