@@ -6,7 +6,7 @@ use sha2::{Digest, Sha256};
 use std::fmt::Write;
 
 #[derive(Debug, Clone, Serialize)]
-struct Transition {
+struct Transaction {
     sender: String,
     receiver: String,
     amount: f32,
@@ -22,15 +22,15 @@ pub struct Blockheader {
 }
 
 #[derive(Serialize, Debug)]
-struct Block {
+pub struct Block {
     header: Blockheader,
     count: u32,
-    transactions: Vec<Transition>,
+    transactions: Vec<Transaction>,
 }
 
 pub struct Chain {
     chain: Vec<Block>,
-    curr_trans: Vec<Transition>,
+    curr_trans: Vec<Transaction>,
     difficulty: u32,
     miner_addr: String,
     reward: f32,
@@ -50,7 +50,7 @@ impl Chain {
     }
 
     pub fn new_transaction(&mut self, sender: String, receiver: String, amount: f32) -> bool {
-        self.curr_trans.push(Transition {
+        self.curr_trans.push(Transaction {
             sender,
             receiver,
             amount,
@@ -87,7 +87,7 @@ impl Chain {
             difficulty: self.difficulty,
         };
 
-        let reward_trans = Transition {
+        let reward_trans = Transaction {
             sender: String::from("Root"),
             receiver: self.miner_addr.clone(),
             amount: self.reward,
@@ -106,18 +106,18 @@ impl Chain {
 
         Chain::proof_of_work(&mut block.header);
 
-        println!("{:?}", &block);
+        println!("{:#?}", &block);
         self.chain.push(block);
         true
     }
 
-    fn get_merkle(curr_trans: Vec<Transition>) -> String {
+    fn get_merkle(curr_trans: Vec<Transaction>) -> String {
         let mut merkle = Vec::new();
 
         for t in &curr_trans {
             let hash = Chain::hash(t);
 
-            merkle.push(hash)
+            merkle.push(hash);
         }
 
         if merkle.len() % 2 == 1 {
