@@ -166,4 +166,14 @@ impl Chain {
 
         Chain::hex_to_string(vec_res.as_slice())
     }
+
+    pub fn hex_to_string(vec_res: &[u8]) -> String {
+        let mut s = String::new();
+        for b in vec_res {
+            write!(&mut s, "{:x}", b).expect("unable to write");
+        }
+
+        s
+    }
+
 }
