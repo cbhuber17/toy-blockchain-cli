@@ -1,3 +1,4 @@
+use colored::Colorize;
 use std::{
     io::{self, Write},
     process,
@@ -23,12 +24,12 @@ fn main() {
     let mut chain = blockchain::Chain::new(miner_addr.trim().to_string(), diff);
 
     loop {
-        println!("\nMenu");
-        println!("1) New Transaction");
-        println!("2) Mine block");
-        println!("3) Change Difficulty");
-        println!("4) Change Reward");
-        println!("0) Exit\n");
+        println!("{}", "\nMENU:".yellow());
+        println!("{}", "1) New Transaction".bright_cyan());
+        println!("{}", "2) Mine block".green());
+        println!("{}", "3) Change Difficulty".bright_magenta());
+        println!("{}", "4) Change Reward".purple());
+        println!("{}", "0) Exit\n".red());
         print!("Enter your choice: ");
         let _ = io::stdout().flush();
         choice.clear();
