@@ -83,6 +83,7 @@ impl Chain {
             timestamp: Utc::now().timestamp_millis(),
             nonce: 0,
             pre_hash: self.last_hash(),
+            merkle: String::new(),
             difficulty: self.difficulty,
         };
 
@@ -110,7 +111,7 @@ impl Chain {
         true
     }
 
-    fn get_merkle(curr_trans: Vec<Transaction>) -> String {
+    fn get_merkle(curr_trans: Vec<Transition>) -> String {
         let mut merkle = Vec::new();
 
         for t in &curr_trans {
@@ -140,28 +141,27 @@ impl Chain {
             let slice = &hash[..header.difficulty as usize];
 
             match slice.parse::<u32>() {
-                Ok(val) {
+                Ok(val) => {
                     if val != 0 {
                         header.nonce += 1;
-                    }
-                    else {
+                    } else {
                         println!("Block hash: {}", hash);
                         break;
                     }
-                },
+                }
                 Err(_) => {
                     header.nonce += 1;
                     continue;
                 }
-             };
+            };
         }
     }
 
     pub fn hash<T: serde::Serialize>(item: &T) -> String {
         let input = serde_json::to_string(&item).unwrap();
-        let mut hasher = Sha256::default();
-        hasher.input(input.as_bytes());
-        let res = hasher.result();
+        let mut hasher = Sha256::new();
+        hasher.update(input.as_bytes());
+        let res = hasher.finalize();
         let vec_res = res.to_vec();
 
         Chain::hex_to_string(vec_res.as_slice())
@@ -175,5 +175,4 @@ impl Chain {
 
         s
     }
-
 }
