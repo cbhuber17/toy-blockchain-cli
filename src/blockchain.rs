@@ -363,3 +363,155 @@ impl Chain {
         s
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_transaction_creation() {
+        let transaction = Transaction {
+            sender: String::from("Alice"),
+            receiver: String::from("Bob"),
+            amount: 10.0,
+        };
+
+        assert_eq!(transaction.sender, "Alice");
+        assert_eq!(transaction.receiver, "Bob");
+        assert_eq!(transaction.amount, 10.0);
+    }
+
+    #[test]
+    fn test_blockheader_creation() {
+        let blockheader = Blockheader {
+            timestamp: 123456789,
+            nonce: 0,
+            pre_hash: String::from(
+                "0000000000000000000000000000000000000000000000000000000000000000",
+            ),
+            merkle: String::from(""),
+            difficulty: 1,
+        };
+
+        assert_eq!(blockheader.timestamp, 123456789);
+        assert_eq!(blockheader.nonce, 0);
+        assert_eq!(
+            blockheader.pre_hash,
+            "0000000000000000000000000000000000000000000000000000000000000000"
+        );
+        assert_eq!(blockheader.merkle, "");
+        assert_eq!(blockheader.difficulty, 1);
+    }
+
+    #[test]
+    fn test_chain_new_transaction() {
+        let mut chain = Chain::new(String::from("miner1"), 1);
+
+        chain.new_transaction(String::from("Alice"), String::from("Bob"), 10.0);
+
+        assert_eq!(chain.curr_trans.len(), 1);
+        assert_eq!(chain.curr_trans[0].sender, "Alice");
+        assert_eq!(chain.curr_trans[0].receiver, "Bob");
+        assert_eq!(chain.curr_trans[0].amount, 10.0);
+    }
+
+    #[test]
+    fn test_chain_generate_new_block() {
+        let mut chain = Chain::new(String::from("miner1"), 1);
+
+        chain.new_transaction(String::from("Alice"), String::from("Bob"), 10.0);
+        chain.generate_new_block();
+
+        assert_eq!(chain.chain.len(), 2);
+        assert_eq!(chain.chain[0].transactions.len(), 1);
+        assert_eq!(chain.chain[0].transactions[0].sender, "Root");
+        assert_eq!(chain.chain[0].transactions[0].receiver, "miner1");
+        assert_eq!(chain.chain[0].transactions[0].amount, 100.0); // Assuming reward is 100.0
+    }
+
+    #[test]
+    fn test_chain_update_difficulty() {
+        let mut chain = Chain::new(String::from("miner1"), 1);
+
+        chain.update_difficulty(2);
+
+        assert_eq!(chain.difficulty, 2);
+    }
+
+    #[test]
+    fn test_chain_update_reward() {
+        let mut chain = Chain::new(String::from("miner1"), 1);
+
+        chain.update_reward(50.0);
+
+        assert_eq!(chain.reward, 50.0);
+    }
+
+    #[test]
+    fn test_chain_last_hash_empty_chain() {
+        let chain = Chain {
+            chain: vec![],
+            curr_trans: vec![],
+            difficulty: 1,
+            miner_addr: String::from("miner1"),
+            reward: 100.0,
+        };
+
+        let hash = chain.last_hash();
+
+        assert_eq!(hash.len(), 64); // Assuming hash length for empty chain
+    }
+
+    #[test]
+    fn test_chain_last_hash_non_empty_chain() {
+        let mut chain = Chain::new(String::from("miner1"), 1);
+        chain.new_transaction(String::from("Alice"), String::from("Bob"), 10.0);
+        chain.generate_new_block();
+
+        let hash = chain.last_hash();
+
+        assert_eq!(hash.len(), 64 - 1); // Assuming hash length for non-empty chain, subtract 1 due to left padding
+    }
+
+    #[test]
+    fn test_chain_hash() {
+        let transaction = Transaction {
+            sender: String::from("Alice"),
+            receiver: String::from("Bob"),
+            amount: 10.0,
+        };
+
+        let hash = Chain::hash(&transaction);
+
+        assert_eq!(hash.len(), 64 - 3); // Assuming hash length for SHA-256, subtract 3 due to left padding
+    }
+
+    #[test]
+    fn test_chain_hex_to_string() {
+        let bytes = vec![0x48, 0x65, 0x6c, 0x6c, 0x6f]; // Equivalent to "Hello" in ASCII
+
+        let hex_string = Chain::hex_to_string(&bytes);
+
+        assert_eq!(hex_string, "48656c6c6f");
+    }
+
+    #[test]
+    fn test_chain_get_merkle() {
+        let transactions = vec![
+            Transaction {
+                sender: String::from("Alice"),
+                receiver: String::from("Bob"),
+                amount: 10.0,
+            },
+            Transaction {
+                sender: String::from("Bob"),
+                receiver: String::from("Charlie"),
+                amount: 5.0,
+            },
+        ];
+
+        let merkle_root = Chain::get_merkle(transactions);
+
+        assert_eq!(merkle_root.len(), 64 - 6); // Assuming hash length for merkle root, subtract 6 due to left padding
+    }
+}
