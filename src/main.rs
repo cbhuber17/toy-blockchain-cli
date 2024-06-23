@@ -6,6 +6,10 @@ use std::{
 
 mod blockchain;
 
+/// The main function that initializes and interacts with the blockchain.
+///
+/// It prompts the user for inputs such as miner address, difficulty level, and provides a menu
+/// for performing operations like creating transactions, mining blocks, and adjusting blockchain parameters.
 fn main() {
     let mut miner_addr = String::new();
     let mut difficulty = String::new();
@@ -95,6 +99,20 @@ fn main() {
     }
 }
 
+/// Reads user input from stdin and stores it in the provided string variable.
+///
+/// # Arguments
+///
+/// * `input_str` - A string slice that describes what input the user should enter (e.g., "name", "number").
+/// * `var` - A mutable reference to a `String` where the input will be stored.
+///
+/// # Examples
+///
+/// ```
+/// let mut name = String::new();
+/// get_input("name: ", &mut name);
+/// println!("Hello, {}!", name.trim());
+/// ```
 fn get_input(input_str: &str, var: &mut String) {
     print!("Enter a {}", input_str);
     let _ = io::stdout().flush();
